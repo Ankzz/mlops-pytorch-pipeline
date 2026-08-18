@@ -4,3 +4,6 @@ torchvision
 fastapi
 python-multipart
 uvicorn
+
+matplotlib
+numpy

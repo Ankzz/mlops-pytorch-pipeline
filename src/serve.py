@@ -20,7 +20,7 @@ def load_model():
     
     # Load weights (ensure train.py has been run first to generate this file)
     try:
-        model.load_state_dict(torch.load("resnet18_cifar10.pth", map_location=device))
+        model.load_state_dict(torch.load("models/resnet18_cifar10.pth", map_location=device))
         model.to(device)
         model.eval()
         print("Model loaded successfully.")
