@@ -13,7 +13,7 @@ def train():
     batch_size = 64
     learning_rate = 0.001
     num_epochs = 1 # As running locally on CPU, reducing this value to 1 from 3
-    save_path = "resnet18_cifar10.pth"
+    save_path = "models/resnet18_cifar10.pth"
 
     # Get Data and Model
     trainloader, testloader = get_dataloaders(batch_size=batch_size)
@@ -21,6 +21,9 @@ def train():
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    # Setting number of threads to number of physical cores
+    torch.set_num_threads(2) 
 
     # Training Loop
     print("Starting Training...")
