@@ -1,0 +1,29 @@
+# Stage 1: Builder
+FROM python:3.11-slim AS builder
+WORKDIR /build
+
+# Create a virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements/train.txt .
+# Install dependencies into the venv
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r train.txt
+
+# Strip compiled python bytecode to save additional space
+RUN find /opt/venv -type d -name "__pycache__" -exec rm -rf {} +
+
+# Stage 2: Final Runtime
+FROM python:3.11-slim AS training
+WORKDIR /app
+
+# Copy ONLY the clean virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+
+# Ensure Python uses the virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+COPY src/ ./src/
+
+ENTRYPOINT ["python", "src/train.py"]

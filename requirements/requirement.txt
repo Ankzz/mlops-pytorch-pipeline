@@ -1,0 +1,9 @@
+torch
+pandas
+torchvision
+fastapi
+python-multipart
+uvicorn
+
+matplotlib
+numpy
