@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ml-training-job
+  namespace: ml-training
+spec:
+  # Do not retry indefinitely if the training code fails
+  backoffLimit: 2 
+  template:
+    spec:
+      containers:
+      - name: trainer
+        image: mlops-train:v1 # Replace with your registry URI if needed
+        imagePullPolicy: IfNotPresent
+        
+        # Resource requests and limits
+        resources:
+          requests:
+            cpu: "1"
+            memory: "4Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+            
+        # Mounting the paths inside the container
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/configs
+          readOnly: true
+        - name: storage-pvc
+          mountPath: /app/data
+          subPath: data
+        - name: storage-pvc
+          mountPath: /app/checkpoints
+          subPath: checkpoints
+
+      # Defining the actual volumes attached to the Pod
+      volumes:
+      - name: config-volume
+        configMap:
+          name: training-config # Replace with your ConfigMap name
+      - name: storage-pvc
+        persistentVolumeClaim:
+          claimName: training-data-pvc # Replace with your PVC name
+          
+      restartPolicy: Never

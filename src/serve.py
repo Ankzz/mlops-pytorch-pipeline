@@ -3,16 +3,34 @@ import torch
 from fastapi import FastAPI, File, UploadFile
 from PIL import Image
 from model import get_model
+from contextlib import asynccontextmanager
 from dataset import get_serving_transform, CLASSES
-
-app = FastAPI(title="CIFAR-10 Image Classifier API")
 
 # Global variables for model and device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = None
 transform = get_serving_transform()
 
-@app.on_event("startup")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- STARTUP LOGIC ---
+    print("Loading ML model from /app/checkpoints...")
+    # Load your model from the Kubernetes volume mount here
+    # model = load_checkpoint("/app/checkpoints")
+    load_model() # Replace with actual model
+    print("Model loaded successfully.")
+    
+    yield  # This yields control back to FastAPI so it can start accepting requests
+    
+    # --- SHUTDOWN LOGIC ---
+    print("Shutting down... cleaning up resources.")
+    # Free up memory/GPU resources when the Kubernetes pod terminates
+    global model
+    model = None
+
+app = FastAPI(title="CIFAR-10 Image Classifier API", lifespan=lifespan)
+
+# @app.on_event("startup")
 def load_model():
     """Loads the model weights when the server starts."""
     global model
@@ -51,6 +69,17 @@ async def predict(file: UploadFile = File(...)):
         "prediction": class_name,
         "confidence": round(confidence_score * 100, 2)
     }
+
+@app.get("/health")
+def health_check():
+    """
+    Kubernetes Liveness and Readiness probes will call this every 5-10 seconds.
+    """
+    # Optional: Add logic here to check if your model is actually loaded into memory
+    # if model is None:
+    #     return JSONResponse(status_code=503, content={"status": "not ready"})
+        
+    return {"status": "healthy", "model_loaded": True}
 
 if __name__ == "__main__":
     import uvicorn
