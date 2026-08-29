@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-serving-service
+  namespace: ml-training
+spec:
+  # ClusterIP is the default. It makes the service reachable from anywhere 
+  # inside the cluster, but not directly from the outside internet.
+  type: ClusterIP 
+  
+  # This selector must exactly match the labels in your Deployment's template
+  selector:
+    app: ml-serving
+    
+  ports:
+    - protocol: TCP
+      port: 8000          # The port other apps will use to talk to this service
+      targetPort: 8000  # The port your Uvicorn/FastAPI container is actually listening on

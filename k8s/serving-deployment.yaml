@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-serving-deployment
+  namespace: ml-training # Added to match your previous namespace
+  labels:
+    app: ml-serving
+spec:
+  replicas: 2
+  
+  # Rolling update strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+      
+  selector:
+    matchLabels:
+      app: ml-serving
+      
+  template:
+    metadata:
+      labels:
+        app: ml-serving
+    spec:
+      containers:
+      - name: serving-container
+        image: mlops-serve:v1 # Replace with your actual serving image
+        imagePullPolicy: IfNotPresent
+        
+        # Port configuration (Update 8080 if your app listens on a different port)
+        ports:
+        - containerPort: 8000
+        
+        # Resource requests and limits
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+            
+        # Liveness probe
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          periodSeconds: 10
+          failureThreshold: 3
+          
+        # Readiness probe
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          
+        # Mount the checkpoints
+        volumeMounts:
+        - name: checkpoint-volume
+          mountPath: /app/checkpoints
+          readOnly: true
+          
+      # Define the underlying volume
+      volumes:
+      - name: checkpoint-volume
+        persistentVolumeClaim:
+          claimName: training-data-pvc
