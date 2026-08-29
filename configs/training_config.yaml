@@ -1,0 +1,8 @@
+# Added this file to maintain the training configuration
+# This file is notional in nature and is not being used in the current implementation. 
+# It is added to maintain the training configuration for future use and 
+# to maintain the structure of the project as per the Assignment requirements.
+epochs: 10
+batch_size: 32
+learning_rate: 0.001
+early_stopping_patience: 3
