@@ -2,9 +2,9 @@
 This repository is part of IITM Term-3 Assignment-3
 
 ## Overview
-In this assignment, you will take a PyTorch image classification model through the full deployment lifecycle: from
+In this assignment, a PyTorch image classification model is taken through the full deployment lifecycle: from
 local development with proper Git workflows, to containerized training with Docker, to orchestrated deployment on
-Kubernetes. By the end, you will have a production-style ML pipeline that can train and serve predictions at scale.
+Kubernetes. By the end, it has a production-style ML pipeline that can train and serve predictions at scale.
 
 ## Learning Objectives
 
