@@ -216,6 +216,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-data/cifar-10-batches-py/batches.meta
-/src/data
-/data
+data
+src/data
