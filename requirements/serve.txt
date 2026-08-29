@@ -1,5 +1,0 @@
-fastapi
-python-multipart
-uvicorn
-torch
-torchvision
